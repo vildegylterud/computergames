@@ -1,10 +1,14 @@
 <template>
   <v-container>
+    <v-col cols="2">
+    <div class="align-center">
+
     <v-footer>This game is made by {{names}}</v-footer>
-  </v-container>
-  <div class="game">
     <GameBoard></GameBoard>
-  </div>
+
+    </div>
+    </v-col>
+  </v-container>
 </template>
 
 <script>
@@ -26,18 +30,4 @@ export default {
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
-h3 {
-  margin: 40px 0 0;
-}
-ul {
-  list-style-type: none;
-  padding: 0;
-}
-li {
-  display: inline-block;
-  margin: 0 10px;
-}
-a {
-  color: #42b983;
-}
 </style>
