@@ -1,12 +1,7 @@
 <template>
   <v-container>
-    <v-col cols="2">
-    <div class="align-center">
-
-    <v-footer>This game is made by {{names}}</v-footer>
+    <v-col cols="6">
     <GameBoard></GameBoard>
-
-    </div>
     </v-col>
   </v-container>
 </template>
@@ -18,12 +13,6 @@ export default {
   components: {GameBoard},
   props: {
     msg: String,
-  },
-
-  data() {
-    return {
-        names: "eksempelnavn",
-    };
   },
 }
 </script>
