@@ -1,7 +1,9 @@
 <template>
   <v-container>
-    <v-col cols="6">
+  <v-col cols="12">
+  <div class="align-center text-center justify-center w-100 d-flex">
     <GameBoard></GameBoard>
+  </div>
     </v-col>
   </v-container>
 </template>

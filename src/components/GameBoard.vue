@@ -1,5 +1,7 @@
 <template>
-  <v-text-field class="h1">Dette er spillebrettet</v-text-field>
+  <v-container>
+  <h2>Spillbrett</h2>
+  </v-container>
 </template>
 
 <script>
