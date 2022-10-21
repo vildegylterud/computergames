@@ -1,20 +1,28 @@
 <template>
 <div id = "app">
-  <h2 id="header">Player <span v-if="turn === player1">1</span><span v-else>2</span></h2>
-  <input class="inputField" type="text" name="column" v-model="column">
-  <button class="dropPiece" @click=takeTurn()>Drop Piece</button>
+  <h2 v-show="!gameOver" id="header">Player <span v-if="turn === player1" >1</span><span v-else>2</span></h2>
+  <h2 v-show="gameOver">The winner is Player <span v-if="turn === player1">1</span><span v-else>2</span>!</h2>
 
   <div class="wrapper">
   <div class="board">
+    <div
+        v-for="(column, columnIndex) in board[0]"
+        :key=" 'col-' + columnIndex"
+        :style="{left: columnIndex * 50 + 'px'}"
+        class="column"
+        @click="takeTurn(columnIndex)"
+    ></div>
     <div class="row" v-for="(row, rowIndex) in board" :key="rowIndex">
       <svg v-for="(column, columnIndex) in row"
       :key="columnIndex"
       width="50" height="50">
-        <circle :class="{empty: column == 0, red: column == 1, yellow: column == 2}" cx="25" cy="25" r="20"/>
+        <circle :class="{empty: column === 0, red: column === 1, yellow: column === 2}" cx="25" cy="25" r="20"/>
       </svg>
     </div>
-    </div>
   </div>
+  </div>
+  <button type="button" v-show="gameOver" class="newGame" @click="resetBoard()">Reset board!</button>
+
 </div>
 </template>
 
@@ -27,33 +35,40 @@ export default {
     return {
       board: [],
       turn: 0,
-      column: 0,
       player1: 0,
       player2: 1,
       red: 1,
       yellow: 2,
       empty: 0,
+      gameOver: false,
 
     };
   },
   methods: {
-    takeTurn() {
-      if (connect4.isValidColumn(this.board, this.column)){
-        let row = connect4.getOpenRow(this.board, this.column)
-        //color red will be defined as 1 and yellow 2
+    takeTurn(column) {
+      if (!this.gameOver && connect4.isValidColumn(this.board, column)) {
+        let row = connect4.getOpenRow(this.board, column)
         let color = this.turn === this.player1 ? this.red : this.yellow
-        connect4.dropPiece(this.board, row.valueOf(), this.column.valueOf(), color.valueOf())
-
-        console.log(this.board)
-
-        this.turn += 1
-        this.turn = this.turn % 2
+        connect4.dropPiece(this.board, row.valueOf(), column.valueOf(), color.valueOf())
+        if(connect4.isWinningMove(this.board, color)) {
+          this.gameOver = true;
+          console.log("We have a winner")
+        } else {
+          this.turn += 1
+          this.turn = this.turn % 2
+        }
       }
+    },
+
+    resetBoard() {
+      this.board = connect4.createBoard();
+      this.gameOver = false
+      this.turn = this.player1;
+      console.log("new game button is clicked")
     }
   },
   created() {
     this.board = connect4.createBoard()
-    console.log(this.board)
   },
 
    components: {
@@ -115,4 +130,41 @@ circle.red {
 circle.yellow {
   fill: #dad400;
 }
+
+.column{
+  position: absolute;
+  top: 0;
+  width: 50px;
+  height: 100%;
+  background-color: transparent;
+  transition: background-color 0.1s ease-in-out;
+}
+
+.column:hover{
+  cursor: pointer;
+  background-color: rgba(255, 255, 255, 0.2);
+}
+
+.board{
+  position: relative;
+}
+
+.newGame{
+  border: 1px solid rgba(27, 31, 35, 0.15); margin-top: 20px;
+  border-radius: 6px;
+  padding: 6px 16px;
+  color: #24292E;
+  cursor: pointer;
+  position: relative;
+  vertical-align: middle;
+
+}
+
+
+.newGame:hover {
+  background-color: #F3F4F6;
+  text-decoration: none;
+  transition-duration: 0.1s;
+}
+
 </style>
