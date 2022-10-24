@@ -37,40 +37,67 @@ export default {
       turn: 0,
       player1: 0,
       player2: 1,
-      red: 1,
-      yellow: 2,
-      empty: 0,
+      red: connect4.Red,
+      yellow: connect4.Yellow,
+      empty: connect4.Yellow,
       gameOver: false,
 
     };
   },
   methods: {
-    takeTurn(column) {
-      if (!this.gameOver && connect4.isValidColumn(this.board, column)) {
-        let row = connect4.getOpenRow(this.board, column)
-        let color = this.turn === this.player1 ? this.red : this.yellow
-        connect4.dropPiece(this.board, row.valueOf(), column.valueOf(), color.valueOf())
-        if(connect4.isWinningMove(this.board, color)) {
-          this.gameOver = true;
-          console.log("We have a winner")
-        } else {
-          this.turn += 1
-          this.turn = this.turn % 2
-        }
-      }
-    },
-
     resetBoard() {
       this.board = connect4.createBoard();
       this.gameOver = false
       this.turn = this.player1;
       console.log("new game button is clicked")
+    },
+    selectBestColumn() {
+      let validColumns = connect4.getValidColumns(this.board);
+      let highestScore = -1000
+      let column = Math.floor(Math.random * validColumns.length)
+      for (let i = 0; i < validColumns.length; i++) {
+        let newColumn = validColumns[i]
+        let row = connect4.getOpenRow(this.board, newColumn)
+        let boardCopy = connect4.copyBoard(this.board)
+        connect4.dropPiece(boardCopy, row.valueOf(), newColumn.valueOf(), this.yellow.valueOf())
+        let newScore = connect4.boardScore(boardCopy)
+        if (newScore > highestScore) {
+          highestScore = newScore;
+          column = newColumn;
+        }
+      }
+      return column;
+    },
+    takeTurn(column) {
+      if (!this.gameOver && connect4.isValidColumn(this.board, column)) {
+        let row = connect4.getOpenRow(this.board, column)
+        let color = this.turn === this.player1 ? this.red : this.yellow
+        connect4.dropPiece(this.board, row.valueOf(), column.valueOf(), color.valueOf())
+        if (connect4.isWinningMove(this.board, color)) {
+          this.gameOver = true;
+        } else {
+          this.turn += 1
+          this.turn = this.turn % 2
+          this.AITurn()
+        }
+      }
+    },
+
+    AITurn() {
+      let column = this.selectBestColumn()
+      let row = connect4.getOpenRow(this.board, column)
+      connect4.dropPiece(this.board, row.valueOf(), column.valueOf(), this.yellow.valueOf()) //AI will always be player 2 == yellow
+      if (connect4.isWinningMove(this.board, this.yellow)) {
+        this.gameOver = true
+      } else {
+        this.turn += 1
+        this.turn = this.turn % 2
+      }
     }
   },
   created() {
     this.board = connect4.createBoard()
   },
-
    components: {
   },
 
