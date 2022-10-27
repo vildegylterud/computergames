@@ -4,8 +4,8 @@
 
 //import {ro} from "vuetify/lib/locale";
 
-export const RowCount = 6
-export const ColumnCount = 7
+const RowCount = 6
+const ColumnCount = 7
 export const Yellow = 2
 export const Red = 1
 export const Empty = 0
@@ -15,7 +15,77 @@ function count(inputArray, item) {
     const map = inputArray.reduce((acc, key) =>
         acc.set(key, (acc.get(key) || 0) +1), new Map())
     return map.get(item) || 0
+}
 
+//MinMax implementation
+export function minimax(board, depth, maximizingPlayer){
+    let isTerminal = isWinningMove(board, Red) || isWinningMove(board, Yellow) || getValidColumns(board).length == 0;
+    if (isTerminal || depth == 0){
+        if (isTerminal){
+            if (isWinningMove(board, Red)){
+                return {
+                    score: -10000, 
+                    column: undefined
+                }
+            }
+            if (isWinningMove(board, Yellow)){
+                return {
+                    score: 10000,
+                    column: undefined
+                }
+            }
+            return {
+                score: 0,
+                column: undefined
+            }
+        } else {
+            return {
+                score: boardScore(board),
+                column: undefined
+            } 
+        }
+    }
+
+    let validColumns = getValidColumns(board);
+    if (maximizingPlayer){
+        let score = -Infinity;
+        let column = Math.floor(Math.random() * validColumns.length);
+        for (let i = 0; i < validColumns.length; i++){
+            let newColumn = validColumns[i];
+            let row = getOpenRow(board, newColumn);
+            let boardCopy = copyBoard(board);
+            dropPiece(boardCopy, row, newColumn, Yellow);
+            let result = minimax(boardCopy, depth - 1, false);
+            let newScore = result.score;
+            if (newScore > score){
+                score = newScore;
+                column = newColumn;
+            }
+        }
+        return {
+            score: score, 
+            column: column
+        };
+    }else{
+        let score = Infinity;
+        let column = Math.floor(Math.random() * validColumns.length);
+        for (let i = 0; i < validColumns.length; i++){
+            let newColumn = validColumns[i];
+            let row = getOpenRow(board, newColumn);
+            let boardCopy = copyBoard(board);
+            dropPiece(boardCopy, row, newColumn, Red);
+            let result = minimax(boardCopy, depth - 1, true);
+            let newScore = result.score;
+            if (newScore < score){
+                score = newScore;
+                column = newColumn;
+            }
+        }
+        return {
+            score: score, 
+            column: column
+        }
+    }
 }
 
 export function createBoard() {

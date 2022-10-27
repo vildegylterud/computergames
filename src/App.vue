@@ -84,9 +84,11 @@ export default {
     },
 
     AITurn() {
-      let column = this.selectBestColumn()
+      //let column = this.selectBestColumn()
+      let result = connect4.minimax(this.board, 5, true)
+      let column = result.column;
       let row = connect4.getOpenRow(this.board, column)
-      connect4.dropPiece(this.board, row.valueOf(), column.valueOf(), this.yellow.valueOf()) //AI will always be player 2 == yellow
+      connect4.dropPiece(this.board, row, column, this.yellow) //AI will always be player 2 == yellow
       if (connect4.isWinningMove(this.board, this.yellow)) {
         this.gameOver = true
       } else {
