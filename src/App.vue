@@ -16,7 +16,7 @@
       <svg v-for="(column, columnIndex) in row"
       :key="columnIndex"
       width="50" height="50">
-        <circle :class="{empty: column === 0, red: column === 1, yellow: column === 2}" cx="25" cy="25" r="20"/>
+        <circle :id="'circle-' + rowIndex + '-' + columnIndex" :class="{empty: column === 0, red: column === 1, yellow: column === 2}" cx="25" cy="25" r="20"/>
       </svg>
     </div>
   </div>
@@ -27,10 +27,20 @@
 </template>
 
 <script>
+function sleep(ms){
+  return new Promise(resolve => setTimeout(resolve, ms))
+}
+
+function highlightPieces(pieces){
+  pieces.forEach(piece => {
+    document.getElementById('circle-' + piece.row + '-' + piece.col).classlist.add('flash')
+  });
+}
+
 import * as connect4 from '@/connect4.js'
 
 export default {
-  name: 'App',
+  name: 'App',  
   data() {
     return {
       board: [],
@@ -69,7 +79,7 @@ export default {
       return column;
     },
     takeTurn(column) {
-      if (!this.gameOver && connect4.isValidColumn(this.board, column)) {
+      if (!this.gameOver && connect4.isValidColumn(this.board, column) && this.turn == this.player1) {
         let row = connect4.getOpenRow(this.board, column)
         let color = this.turn === this.player1 ? this.red : this.yellow
         connect4.dropPiece(this.board, row.valueOf(), column.valueOf(), color.valueOf())
@@ -78,14 +88,17 @@ export default {
         } else {
           this.turn += 1
           this.turn = this.turn % 2
-          this.AITurn()
+          sleep(1000).then(() => {
+            this.AITurn()
+          })
+          
         }
       }
     },
 
     AITurn() {
       //let column = this.selectBestColumn()
-      let result = connect4.minimax(this.board, 5, true)
+      let result = connect4.minimax(this.board, 5, -Infinity, Infinity, true)
       let column = result.column;
       let row = connect4.getOpenRow(this.board, column)
       connect4.dropPiece(this.board, row, column, this.yellow) //AI will always be player 2 == yellow
@@ -99,6 +112,13 @@ export default {
   },
   created() {
     this.board = connect4.createBoard()
+  },
+  updated(){
+    if(this.gameOver){
+      let color = this.turn === this.player1 ? this.red : this.yellow;
+      let pieces = connect4.getWinningPieces(this.board, color)
+      highlightPieces(pieces)
+    }
   },
    components: {
   },
@@ -196,4 +216,35 @@ circle.yellow {
   transition-duration: 0.1s;
 }
 
+circle.red.flash{
+  animation: puls-red 1.2s ease-in-out infinite 
+}
+circle.yellow.flash{
+  animation: puls-yellow 1.2s ease-in-out infinite 
+}
+
+@keyframes pulse-red {
+  0%{
+    fill: #d50000;
+  }
+  50%{
+    fill: #ff8f8f;
+  }
+  100%{
+    fill: #d50000;
+  }
+}
+
+@keyframes pulse-yellow {
+  0%{
+    fill: #dad400;
+  }
+  50%{
+    fill: #fffdab;
+  }
+  100%{
+    fill: #dad400;
+  }
+
+}
 </style>

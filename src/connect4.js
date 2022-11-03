@@ -18,7 +18,7 @@ function count(inputArray, item) {
 }
 
 //MinMax implementation
-export function minimax(board, depth, maximizingPlayer){
+export function minimax(board, depth, alpha, beta, maximizingPlayer){
     let isTerminal = isWinningMove(board, Red) || isWinningMove(board, Yellow) || getValidColumns(board).length == 0;
     if (isTerminal || depth == 0){
         if (isTerminal){
@@ -55,11 +55,15 @@ export function minimax(board, depth, maximizingPlayer){
             let row = getOpenRow(board, newColumn);
             let boardCopy = copyBoard(board);
             dropPiece(boardCopy, row, newColumn, Yellow);
-            let result = minimax(boardCopy, depth - 1, false);
+            let result = minimax(boardCopy, depth - 1, alpha, beta, false);
             let newScore = result.score;
             if (newScore > score){
                 score = newScore;
                 column = newColumn;
+            }
+            alpha = Math.max(alpha,score)
+            if (alpha >= beta){
+                break;
             }
         }
         return {
@@ -74,11 +78,15 @@ export function minimax(board, depth, maximizingPlayer){
             let row = getOpenRow(board, newColumn);
             let boardCopy = copyBoard(board);
             dropPiece(boardCopy, row, newColumn, Red);
-            let result = minimax(boardCopy, depth - 1, true);
+            let result = minimax(boardCopy, depth - 1, alpha, beta, true);
             let newScore = result.score;
             if (newScore < score){
                 score = newScore;
                 column = newColumn;
+            }
+            beta = Math.min(beta,score)
+            if(alpha>= beta){
+                break
             }
         }
         return {
@@ -204,7 +212,10 @@ export function getValidColumns(board) {
     return validColumns
 }
 
-
+/*
+*
+*
+*/
 export function isWinningMove(board, color){
     //Check all the rows
     for(let c = 0; c < ColumnCount - 3; c++ ) {
@@ -219,8 +230,7 @@ export function isWinningMove(board, color){
                 return true
             }
         }
-    }
-    //Check all columns
+        //Check all columns
     for(let c = 0; c < ColumnCount; c++ ) {
         for(let r = RowCount - 1; r >= RowCount - 3; r--) {
             if(
@@ -248,6 +258,7 @@ export function isWinningMove(board, color){
             }
         }
     }
+}
     //Check all downward diagonals
     for(let c = 0; c < ColumnCount - 3; c++ ) {
         for(let r = 0; r < RowCount - 3; r++) {
@@ -259,6 +270,87 @@ export function isWinningMove(board, color){
 
             ) {
                 return true
+            }
+        }
+    }
+}
+    
+    
+    /*
+    *
+    *
+    */
+    
+    export function getWinningPieces(board, color){
+        //Check all the rows
+        for(let c = 0; c < ColumnCount - 3; c++ ) {
+            for(let r = 0; r < RowCount; r++) {
+                if(
+                    board[r][c] === color &&
+                    board[r][c+1] === color &&
+                    board[r][c + 2] === color &&
+                    board[r][c + 3] === color
+    
+                ) {
+                return [ {row: r, col: c}, 
+                {row: r , col: c + 1},
+                {row: r , col: c + 2},
+                {row: r , col: c + 3}
+                ]
+                }
+            }
+        }
+    //Check all columns
+    for(let c = 0; c < ColumnCount; c++ ) {
+        for(let r = RowCount - 1; r >= RowCount - 3; r--) {
+            if(
+                board[r][c] === color &&
+                board[r - 1][c] === color &&
+                board[r - 2][c] === color &&
+                board[r - 3][c] === color
+
+            ) {
+                return [{row: r, col: c}, 
+                {row: r - 1, col: c},
+                {row: r - 2, col: c},
+                {row: r - 3, col: c}
+                ]
+            }
+        }
+    }
+    //Check all upward diagonals
+    for(let c = 0; c < ColumnCount - 3; c++ ) {
+        for(let r = RowCount - 1; r >= RowCount - 3; r--) {
+            if(
+                board[r][c] === color &&
+                board[r - 1][c + 1] === color &&
+                board[r - 2][c + 2] === color &&
+                board[r - 3][c + 3] === color
+
+            ) {
+                return [ {row: r, col: c}, 
+                {row: r - 1, col: c + 1},
+                {row: r - 2, col: c + 2},
+                {row: r - 3, col: c + 3}
+                ]
+            }
+        }
+    }
+    //Check all downward diagonals
+    for(let c = 0; c < ColumnCount - 3; c++ ) {
+        for(let r = 0; r < RowCount - 3; r++) {
+            if(
+                board[r][c] === color &&
+                board[r + 1][c + 1] === color &&
+                board[r + 2][c + 2] === color &&
+                board[r + 3][c + 3] === color
+
+            ) {
+                return [ {row: r, col: c}, 
+                {row: r + 1, col: c + 1},
+                {row: r + 2, col: c + 2},
+                {row: r + 3, col: c + 3}
+                ]
             }
         }
     }
